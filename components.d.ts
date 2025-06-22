@@ -10,9 +10,11 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddPackageDialog: typeof import('./src/components/containers/DialogAddPackage.vue')['default']
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
+    copy: typeof import('./src/components/containers/DialogPipConfig.vue')['default']
     Dashboard: typeof import('./src/components/Dashboard.vue')['default']
     DialogAddPackage: typeof import('./src/components/containers/DialogAddPackage.vue')['default']
     DialogDeleteComfirm: typeof import('./src/components/containers/DialogDeleteComfirm.vue')['default']
+    DialogPipConfig: typeof import('./src/components/containers/DialogPipConfig.vue')['default']
     DialogPythonPackage: typeof import('./src/components/containers/DialogPythonPackage.vue')['default']
     DialogPythonPackageUpdate: typeof import('./src/components/containers/DialogPythonPackageUpdate.vue')['default']
     PythonPackages: typeof import('./src/components/containers/PythonPackages.vue')['default']

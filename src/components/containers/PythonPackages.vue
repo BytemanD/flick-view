@@ -7,6 +7,7 @@
         <v-col>
             <v-toolbar flat density='comfortable'>
                 <dialog-add-package :progress="addPackageDialog.progress" @click:confirm="addPackage" />
+                <dialog-pip-config></dialog-pip-config>
                 <v-spacer></v-spacer>
                 <v-btn color="primary" @click="fetchPackages()">刷新</v-btn>
                 <v-btn color="grey" @click="() => { }">检查更新...</v-btn>

@@ -134,6 +134,15 @@ class Pip extends Restfulclient {
     async get_versions(name){
         return await this.get(`packages/${name}/versions`);
     }
+    async get_repos(){
+        return (await this.get('repos')).repos;
+    }
+    async get_config(){
+        return (await this.get('config')).config;
+    }
+    async set_config(key, value){
+        return await this.post('config', {key: key, value: value});
+    }
 }
 
 
