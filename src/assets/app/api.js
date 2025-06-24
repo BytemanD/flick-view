@@ -144,11 +144,19 @@ class Pip extends Restfulclient {
         return await this.post('config', {key: key, value: value});
     }
 }
-
+class Docker extends Restfulclient {
+    constructor() {
+        super('/docker');
+    }
+    async images(){
+        return (await this.get('images')).images;
+    }
+}
 
 export class FlickAPI {
     constructor() {
         this.pip = new Pip();
+        this.docker = new Docker();
     }
 }
 

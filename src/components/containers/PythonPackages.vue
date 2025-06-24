@@ -4,7 +4,7 @@
             <v-text-field v-model="table.search" placeholder="搜索包" flat variant="outlined" class="mb-4"
                 prepend-inner-icon="mdi-magnify" />
         </v-col>
-        <v-col>
+        <v-col class="ma-0">
             <v-toolbar flat density='comfortable'>
                 <dialog-add-package :progress="addPackageDialog.progress" @click:confirm="addPackage" />
                 <dialog-pip-config></dialog-pip-config>
@@ -13,17 +13,15 @@
                 <v-btn color="grey" @click="() => { }">检查更新...</v-btn>
             </v-toolbar>
         </v-col>
-        <v-col cols="12">
-            <v-data-table density="comfortable" :loading="table.loading" :headers="table.headers" items-per-page="10"
-                :items="table.packages" :search="table.search">
-                <template v-slot:item.actions="{ item }">
-                    <v-btn color="info" size='small' variant='text' @click="showPackageDetail(item)">元数据</v-btn>
-                    <v-btn color="warning" size='small' variant='text' @click="updatePackage(item)">更新</v-btn>
-                    <v-btn color="red" size='small' variant='text' @click="uninstallConfirm(item)">卸载</v-btn>
-                </template>
-            </v-data-table>
-        </v-col>
     </v-row>
+    <v-data-table density="comfortable" :loading="table.loading" :headers="table.headers" items-per-page="10"
+        :items="table.packages" :search="table.search">
+        <template v-slot:item.actions="{ item }">
+            <v-btn color="info" size='small' variant='text' @click="showPackageDetail(item)">元数据</v-btn>
+            <v-btn color="warning" size='small' variant='text' @click="updatePackage(item)">更新</v-btn>
+            <v-btn color="red" size='small' variant='text' @click="uninstallConfirm(item)">卸载</v-btn>
+        </template>
+    </v-data-table>
     <dialog-python-package v-model="detailDialog.display" :package="detailDialog.package" />
     <dialog-delete-comfirm hide-btn v-model="uninstallDialog.display" title="确定卸载包?" :text="uninstallDialog.text"
         @click:comfirm="() => uninstall()" />
