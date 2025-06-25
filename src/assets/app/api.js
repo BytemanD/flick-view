@@ -161,7 +161,8 @@ export class FlickAPI {
 }
 
 
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_BASE_URl || '';
+console.log(`backend base url is: '${axios.defaults.baseURL}'`, )
 Restfulclient.prototype.getHeaders = function () {
     return {};
 }

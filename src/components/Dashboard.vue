@@ -14,7 +14,7 @@
 
                 <v-list density="compact" nav>
                     <v-list-item v-for="(item, index) in components" :title="item.title" :prepend-icon="item.icon"
-                        :value="index" @click="selectItem(index)" color="info">
+                        :value="index" @click="selectItem(index)" color="info" :active="navigation.selectedIndex == index">
                     </v-list-item>
                 </v-list>
             </v-navigation-drawer>

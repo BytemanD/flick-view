@@ -54,13 +54,11 @@ async function refreshRepos() {
             break;
         }
     }
-    console.log('xxxxxxxxxx', card.currentRepo)
     if (! card.currentRepo) {
         return
     }
     for (let index = 0; index < card.repoItems.length; index++) {
         let repo = card.repos[card.repoItems[index]];
-        console.log('111111111', repo, card.currentRepo)
         if (repo == card.currentRepo) {
             card.currentRepoName = card.repoItems[index];
             card.repoSelected = card.repoItems[index];
@@ -87,7 +85,6 @@ async function setRepo() {
 
 watchEffect(
     () => {
-        console.log(display)
         refreshConfig().then(() => {
             refreshRepos()
         })
