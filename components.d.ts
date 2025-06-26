@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddPackageDialog: typeof import('./src/components/containers/DialogAddPackage.vue')['default']
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     Dashboard: typeof import('./src/components/Dashboard.vue')['default']
     DialogAddPackage: typeof import('./src/components/containers/DialogAddPackage.vue')['default']

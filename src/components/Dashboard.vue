@@ -36,10 +36,12 @@
 <script setup>
 import { reactive } from 'vue';
 
+import PythonPackages from '@/components/containers/PythonPackages.vue'
+import DockerManager from '@/components/containers/container/DockerManager.vue'
 
 var components = [
-    { title: 'Python Manager', icon: "mdi-alpha-p-circle", component: 'PythonPackages' },
-    { title: 'Docker Manager', icon: "mdi-alpha-d-circle", component: 'DockerManager' },
+    { title: 'Python Manager', icon: "$python", component: PythonPackages },
+    { title: 'Docker Manager', icon: "$docker", component: DockerManager },
 ]
 
 var navigation = reactive({
