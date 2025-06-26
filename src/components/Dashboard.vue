@@ -9,12 +9,11 @@
                         </template>
                     </v-list-item>
                 </v-list>
-
                 <v-divider></v-divider>
-
                 <v-list density="compact" nav>
                     <v-list-item v-for="(item, index) in components" :title="item.title" :prepend-icon="item.icon"
-                        :value="index" @click="selectItem(index)" color="info" :active="navigation.selectedIndex == index">
+                        :value="index" @click="selectItem(index)" color="info"
+                        :active="navigation.selectedIndex == index">
                     </v-list-item>
                 </v-list>
             </v-navigation-drawer>
@@ -22,11 +21,12 @@
                 <v-app-bar-nav-icon @click="navigation.mini = !navigation.mini"
                     :icon="navigation.mini ? 'mdi-dots-vertical' : 'mdi-menu'">
                 </v-app-bar-nav-icon>
+                <v-spacer></v-spacer>
+                <btn-theme></btn-theme>
             </v-app-bar>
             <v-main>
                 <v-col>
-                    <PythonPackages v-if="navigation.selectedIndex == 0" />
-                    <docker-manager v-if="navigation.selectedIndex == 1" />
+                    <component :is="components[navigation.selectedIndex].component" />
                 </v-col>
             </v-main>
         </v-app>
@@ -38,10 +38,12 @@ import { reactive } from 'vue';
 
 import PythonPackages from '@/components/containers/PythonPackages.vue'
 import DockerManager from '@/components/containers/container/DockerManager.vue'
+import SystemManager from '@/components/system/SystemManager.vue'
 
 var components = [
-    { title: 'Python Manager', icon: "$python", component: PythonPackages },
-    { title: 'Docker Manager', icon: "$docker", component: DockerManager },
+    { title: '系统', icon: "$server", component: SystemManager },
+    { title: 'Python', icon: "$python", component: PythonPackages },
+    { title: 'Docker', icon: "$docker", component: DockerManager },
 ]
 
 var navigation = reactive({

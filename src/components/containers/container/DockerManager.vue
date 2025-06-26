@@ -33,6 +33,7 @@
 import { reactive } from 'vue';
 import API from '@/assets/app/api';
 import notify from '@/assets/app/notify';
+import { humanSize } from '@/assets/app/urils';
 
 var table = reactive({
     loading: false,
@@ -45,22 +46,8 @@ var table = reactive({
     ],
     images: [],
 });
-function humanSize(bytes, decimalPlaces = 2) {
-  if (bytes === 0) return '0 Bytes';
 
-  const k = 1024;
-  const dm = decimalPlaces < 0 ? 0 : decimalPlaces;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-async function refresh() {
-    if (name) {
-        updatePackages(name)
-        return;
-    }
+async function refresh(name) {
     table.loading = true
     try {
         table.packages = await API.docker.images()

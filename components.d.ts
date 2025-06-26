@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
+    BtnTheme: typeof import('./src/components/plugins/BtnTheme.vue')['default']
     Dashboard: typeof import('./src/components/Dashboard.vue')['default']
     DialogAddPackage: typeof import('./src/components/containers/DialogAddPackage.vue')['default']
     DialogDeleteComfirm: typeof import('./src/components/containers/DialogDeleteComfirm.vue')['default']
@@ -19,5 +20,6 @@ declare module 'vue' {
     PythonPackages: typeof import('./src/components/containers/PythonPackages.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SystemManager: typeof import('./src/components/system/SystemManager.vue')['default']
   }
 }

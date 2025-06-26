@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 class Restfulclient {
-    constructor(baseUrl, async=false) {
+    constructor(baseUrl, async = false) {
         this.async = async;
         this.baseUrl = baseUrl;
     }
@@ -52,10 +52,10 @@ class Restfulclient {
     }
     async delete(id) {
         let resp = await axios.delete(
-            `${this.baseUrl}/${id}`, {headers: this.getHeaders() });
+            `${this.baseUrl}/${id}`, { headers: this.getHeaders() });
         return resp.data
     }
-    async doPost(body, url = null){
+    async doPost(body, url = null) {
         try {
             let reqUrl = this.baseUrl;
             if (url) {
@@ -113,48 +113,67 @@ class Restfulclient {
     }
 }
 
+class Node extends Restfulclient {
+    constructor() {
+        super('/node');
+    }
+    async platform() {
+        return (await this.get('info')).info;
+    }
+    async cpu() {
+        return (await this.get('cpu')).cpu;
+    }
+    async memory() {
+        return (await this.get('memory')).memory;
+    }
+    async disk() {
+        return (await this.get('disk')).disk;
+    }
+
+}
 
 class Pip extends Restfulclient {
     constructor() {
         super('/pip');
     }
-    async version(){
+    async version() {
         return (await this.get('version')).version;
     }
-    async packages(filters={}){
+    async packages(filters = {}) {
         return (await this.get('packages', filters)).packages;
     }
-    async uninstall(name){
+    async uninstall(name) {
         return await this.delete(`packages/${name}`);
     }
-    async install(name, {noDeps = false, force=false, upgrade=false}={}){
-        let data = {name: name, noDeps: noDeps, force: force, upgrade:upgrade}
+    async install(name, { noDeps = false, force = false, upgrade = false } = {}) {
+        let data = { name: name, noDeps: noDeps, force: force, upgrade: upgrade }
         return await this.post('packages', data);
     }
-    async get_versions(name){
+    async get_versions(name) {
         return await this.get(`packages/${name}/versions`);
     }
-    async get_repos(){
+    async get_repos() {
         return (await this.get('repos')).repos;
     }
-    async get_config(){
+    async get_config() {
         return (await this.get('config')).config;
     }
-    async set_config(key, value){
-        return await this.post('config', {key: key, value: value});
+    async set_config(key, value) {
+        return await this.post('config', { key: key, value: value });
     }
 }
 class Docker extends Restfulclient {
     constructor() {
         super('/docker');
     }
-    async images(){
+    async images() {
         return (await this.get('images')).images;
     }
 }
 
 export class FlickAPI {
     constructor() {
+        this.node = new Node();
         this.pip = new Pip();
         this.docker = new Docker();
     }
@@ -162,7 +181,7 @@ export class FlickAPI {
 
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_BASE_URl || '';
-console.log(`backend base url is: '${axios.defaults.baseURL}'`, )
+console.log(`backend base url is: '${axios.defaults.baseURL}'`,)
 Restfulclient.prototype.getHeaders = function () {
     return {};
 }

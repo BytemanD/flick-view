@@ -18,7 +18,7 @@ import { fa } from 'vuetify/iconsets/fa'
 export default createVuetify({
   theme: {
     defaultTheme: 'light',
-    // defaultTheme: 'dark,',
+    // defaultTheme: 'dark',
   },
   icons: {
     defaultSet: 'mdi',
@@ -26,6 +26,7 @@ export default createVuetify({
       ...aliases,
       python: 'fa:fab fa-python',
       docker: 'fa:fab fa-docker',
+      server: 'fa:fas fa-server',
     },
     sets: {
       mdi,
