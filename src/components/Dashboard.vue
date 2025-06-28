@@ -1,7 +1,7 @@
 <template>
     <v-responsive class="border rounded">
         <v-app>
-            <v-navigation-drawer :rail="navigation.mini">
+            <v-navigation-drawer :rail="navigation.mini" width="200">
                 <v-list>
                     <v-list-item subtitle="guest@gmailcom" title="Guest">
                         <template v-slot:prepend>

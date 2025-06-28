@@ -126,10 +126,12 @@ class Node extends Restfulclient {
     async memory() {
         return (await this.get('memory')).memory;
     }
-    async disk() {
-        return (await this.get('disk')).disk;
+    async partitions(filters = {}) {
+        return (await this.get('partitions', filters)).partitions;
     }
-
+    async net_interfaces() {
+        return (await this.get('net_interfaces')).net_interfaces;
+    }
 }
 
 class Pip extends Restfulclient {

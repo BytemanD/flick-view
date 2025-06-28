@@ -1,32 +1,53 @@
 <template>
-    <v-row>
-        <v-col cols="4">
-            <v-text-field v-model="table.search" placeholder="搜索" flat variant="outlined" class="mb-4"
-                prepend-inner-icon="mdi-magnify" />
-        </v-col>
-        <v-col class='ma-0'>
-            <v-toolbar flat density='comfortable'>
-                <v-spacer></v-spacer>
-                <v-btn color="primary" @click="refresh()">刷新</v-btn>
-            </v-toolbar>
-        </v-col>
-    </v-row>
-    <v-data-table density="comfortable" :loading="table.loading" :headers="table.headers" items-per-page="10"
-        :items="table.packages" :search="table.search">
-        <template v-slot:item.size="{ item }">
-            {{ humanSize(item.size) }}
-        </template>
-        <template v-slot:item.tags="{ item }">
-            <template v-for="(tag, index) in item.tags" density='compact' class='ma-1'>
-                <v-chip density='compact' class='mt-1'> {{ tag }} </v-chip> <br/>
-            </template>
-        </template>
-        <template v-slot:item.actions="{ item }">
-            <v-btn color="info" size='small' variant='text' @click="()=>{}">元数据</v-btn>
-            <v-btn color="warning" size='small' variant='text' @click="()=>{}">更新</v-btn>
-            <v-btn color="red" size='small' variant='text' @click="()=>{}">删除</v-btn>
-        </template>
-    </v-data-table>
+    <v-tabs v-model="tab.value" bg-color="primary">
+        <v-tab value="overview">概览</v-tab>
+        <v-tab value="container">容器</v-tab>
+        <v-tab value="image">镜像</v-tab>
+        <v-tab value="volume">卷</v-tab>
+    </v-tabs>
+    <v-tabs-window v-model="tab.value">
+        <v-tabs-window-item value="overview">
+            overview
+        </v-tabs-window-item>
+        <v-tabs-window-item value="container">
+            One
+        </v-tabs-window-item>
+        <v-tabs-window-item value="image">
+            <v-row class="mt-1">
+                <v-col cols="4">
+                    <v-text-field v-model="table.search" placeholder="搜索" flat variant="outlined" class="mb-4"
+                        prepend-inner-icon="mdi-magnify" />
+                </v-col>
+                <v-col class='ma-0'>
+                    <v-toolbar flat density='comfortable'>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="refresh()">刷新</v-btn>
+                    </v-toolbar>
+                </v-col>
+            </v-row>
+            <v-data-table density="comfortable" :loading="table.loading" :headers="table.headers" items-per-page="10"
+                :items="table.packages" :search="table.search">
+                <template v-slot:item.size="{ item }">
+                    {{ humanSize(item.size) }}
+                </template>
+                <template v-slot:item.tags="{ item }">
+                    <template v-for="(tag, index) in item.tags" density='compact' class='ma-1'>
+                        <v-chip density='compact' class='mt-1'> {{ tag }} </v-chip> <br />
+                    </template>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                    <v-btn color="info" size='small' variant='text' @click="() => { }">元数据</v-btn>
+                    <v-btn color="warning" size='small' variant='text' @click="() => { }">更新</v-btn>
+                    <v-btn color="red" size='small' variant='text' @click="() => { }">删除</v-btn>
+                </template>
+            </v-data-table>
+        </v-tabs-window-item>
+
+        <v-tabs-window-item value="volume">
+            Three
+        </v-tabs-window-item>
+    </v-tabs-window>
+
 </template>
 
 <script setup>
@@ -46,6 +67,9 @@ var table = reactive({
     ],
     images: [],
 });
+var tab = reactive({
+    value: 'overview'
+})
 
 async function refresh(name) {
     table.loading = true
