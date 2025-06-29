@@ -17,6 +17,7 @@ declare module 'vue' {
     DialogPythonPackage: typeof import('./src/components/containers/DialogPythonPackage.vue')['default']
     DialogPythonPackageUpdate: typeof import('./src/components/containers/DialogPythonPackageUpdate.vue')['default']
     DockerManager: typeof import('./src/components/containers/container/DockerManager.vue')['default']
+    ListKeyValue: typeof import('./src/components/plugins/ListKeyValue.vue')['default']
     PythonPackages: typeof import('./src/components/containers/PythonPackages.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

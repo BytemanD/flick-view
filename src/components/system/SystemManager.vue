@@ -3,26 +3,7 @@
         <v-col lg="6" md="6" sm="12">
             <v-card>
                 <v-card-text>
-                    <v-table density="compact">
-                        <tbody>
-                            <tr>
-                                <th>系统</th>
-                                <td>{{ node.platform.system }}</td>
-                            </tr>
-                            <tr>
-                                <th>发行版本</th>
-                                <td>{{ node.platform.release }}</td>
-                            </tr>
-                            <tr>
-                                <th>版本</th>
-                                <td>{{ node.platform.version }}</td>
-                            </tr>
-                            <tr>
-                                <th>处理器</th>
-                                <td>{{ node.platform.processor }}</td>
-                            </tr>
-                        </tbody>
-                    </v-table>
+                    <list-key-value :object="node.info"></list-key-value>
                 </v-card-text>
             </v-card>
         </v-col>
@@ -61,41 +42,14 @@
             <v-switch density="compact" v-model="cardPartitions.allDevice" hide-details color="info"
                 @change="refresPartitions()" label="全部设备"></v-switch>
         </v-col>
-        <v-col lg="3" md="4" sm="6" v-for="(part, i) in cardPartitions.items">
-            <v-card :title="part.device" variant="outlined" color="info">
+        <v-col lg="3" md="4" sm="6" v-for="(part, i) in cardPartitions.items_view">
+            <v-card :title="part._mountpoint" variant="outlined" color="info">
                 <template v-slot:append>
-                    <v-chip label color="info">{{ part.fstype }}</v-chip>
+                    <v-chip label color="info">{{ part._fstype }}</v-chip>
                 </template>
                 <v-divider></v-divider>
                 <v-card-text>
-                    <v-table density="compact">
-                        <tbody>
-                            <tr>
-                                <th>
-                                    <h4>挂载点</h4>
-                                </th>
-                                <td>{{ part.mountpoint }}</td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <h4>总容量</h4>
-                                </th>
-                                <td>{{ humanSize(part.usage.total) }}</td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <h4>已使用</h4>
-                                </th>
-                                <td>{{ humanSize(part.usage.free) }}</td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <h4>可用</h4>
-                                </th>
-                                <td>{{ humanSize(part.usage.used) }}</td>
-                            </tr>
-                        </tbody>
-                    </v-table>
+                    <list-key-value :object="part"></list-key-value>
                 </v-card-text>
             </v-card>
         </v-col>
@@ -161,9 +115,9 @@ import { humanSize } from '@/assets/app/urils';
 
 var node = reactive({
     platform: {},
+    info: {},
     cpu: {},
     memory: {},
-    disk: {},
 });
 var cardPartitions = reactive({
     headers: [
@@ -173,6 +127,7 @@ var cardPartitions = reactive({
         { title: '容量', value: 'usage' },
     ],
     items: [],
+    items_view: {},
     allDevice: false,
     loading: false
 });
@@ -191,6 +146,12 @@ var cardNetInterfaces = reactive({
 });
 async function refreshPlatform() {
     node.platform = await API.node.platform()
+    node.info = {
+        '系统': node.platform.name ? `${node.platform.name} ${node.platform.dist_version}` : node.platform.system,
+        '发行版本': node.platform.release,
+        '版本': node.platform.version,
+        '处理器': node.platform.processor,
+    }
 }
 async function refreshCPU() {
     node.cpu = await API.node.cpu()
@@ -202,6 +163,19 @@ async function refresPartitions() {
     cardPartitions.loading = true;
     try {
         cardPartitions.items = await API.node.partitions({ all_device: cardPartitions.allDevice })
+        cardPartitions.items_view = []
+        for(let index in cardPartitions.items) {
+            let part = cardPartitions.items[index]
+            console.info(part)
+            cardPartitions.items_view.push({
+                '_mountpoint': part.mountpoint,
+                '_fstype': part.fstype,
+                '设备': part.device,
+                '总容量': humanSize(part.usage.total),
+                '已使用': humanSize(part.usage.used),
+                '可用': humanSize(part.usage.free),
+            })
+        }
     } catch (e) {
         console.error("get partitions failed", e)
     } finally {

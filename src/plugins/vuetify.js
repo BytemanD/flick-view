@@ -22,6 +22,9 @@ export default createVuetify({
   },
   icons: {
     defaultSet: 'mdi',
+    global: {
+      density: 'compact' // 可选值: 'default', 'comfortable', 'compact'
+    },
     aliases: {
       ...aliases,
       python: 'fa:fab fa-python',

@@ -161,7 +161,7 @@ class Pip extends Restfulclient {
         return (await this.get('config')).config;
     }
     async set_config(key, value) {
-        return await this.post('config', { key: key, value: value });
+        return await this.put('config', {key: key, value: value});
     }
 }
 class Docker extends Restfulclient {

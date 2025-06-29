@@ -53,6 +53,18 @@ var navigation = reactive({
 
 function selectItem(index) {
     navigation.selectedIndex = index;
+    localStorage.setItem('navigationIndex', navigation.selectedIndex)
 }
+
+function initNaigation() {
+    let savedIndex = localStorage.getItem('navigationIndex')
+    if (savedIndex && savedIndex > 0 && savedIndex < components.length) {
+        navigation.selectedIndex = savedIndex
+    } else {
+        navigation.selectedIndex = 0
+    }
+}
+
+initNaigation()
 
 </script>
