@@ -16,15 +16,23 @@ import { fa } from 'vuetify/iconsets/fa'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
+  defaults: {
+    global: {
+      // 可选值: 'default', 'comfortable', 'compact'
+      density: 'comfortable',
+    },
+    VDataTable: {
+      headerProps: {
+        // align: 'center'
+      }
+    }
+  },
   theme: {
     defaultTheme: 'light',
     // defaultTheme: 'dark',
   },
   icons: {
     defaultSet: 'mdi',
-    global: {
-      density: 'compact' // 可选值: 'default', 'comfortable', 'compact'
-    },
     aliases: {
       ...aliases,
       python: 'fa:fab fa-python',
@@ -32,6 +40,7 @@ export default createVuetify({
       server: 'fa:fas fa-server',
     },
     sets: {
+      // :header-props="{ align: 'center' }"
       mdi,
       fa,
     },

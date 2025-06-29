@@ -7,10 +7,47 @@
     </v-tabs>
     <v-tabs-window v-model="tab.value">
         <v-tabs-window-item value="overview">
-            overview
+            <v-row>
+                <v-col lg="4" md="6" sm="12">
+                    <v-card elevation="2" class="ma-1">
+                        <v-card-text>
+                            <list-key-value :object="system.info"></list-key-value>
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
         </v-tabs-window-item>
         <v-tabs-window-item value="container">
-            One
+            <!-- 容器 -->
+            <v-row class="mt-1">
+                <v-col cols="4">
+                    <v-text-field v-model="tableContainers.search" placeholder="搜索" flat variant="outlined" class="mb-4"
+                        prepend-inner-icon="mdi-magnify" />
+                </v-col>
+                <v-col class='ma-0'>
+                    <v-toolbar density='compact'>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="refreshContainers()">刷新</v-btn>
+                    </v-toolbar>
+                </v-col>
+            </v-row>
+            <v-data-table density="compact" :loading="tableContainers.loading" :headers="tableContainers.headers"
+                items-per-page="10" :items="tableContainers.items" :search="tableContainers.search">
+                <template v-slot:item.size="{ item }">
+                    {{ humanSize(item.size) }}
+                </template>
+                <template v-slot:item.tags="{ item }">
+                    <template v-for="(tag, index) in item.tags" density='compact' class='ma-1'>
+                        <v-chip density='compact' class='mt-1'> {{ tag }} </v-chip> <br />
+                    </template>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                    <v-btn color="info" size='small' variant='text' @click="() => { }">元数据</v-btn>
+                    <v-btn color="warning" size='small' variant='text' @click="() => { }">停止</v-btn>
+                    <v-btn color="success" size='small' variant='text' @click="() => { }">启动</v-btn>
+                    <v-btn color="red" size='small' variant='text' @click="() => { }">删除</v-btn>
+                </template>
+            </v-data-table>
         </v-tabs-window-item>
         <v-tabs-window-item value="image">
             <v-row class="mt-1">
@@ -25,26 +62,49 @@
                     </v-toolbar>
                 </v-col>
             </v-row>
-            <v-data-table density="comfortable" :loading="table.loading" :headers="table.headers" items-per-page="10"
-                :items="table.packages" :search="table.search">
+            <v-data-table density="compact" :loading="table.loading" :headers="table.headers" items-per-page="10"
+                :items="table.items" :search="table.search">
                 <template v-slot:item.size="{ item }">
                     {{ humanSize(item.size) }}
                 </template>
                 <template v-slot:item.tags="{ item }">
-                    <template v-for="(tag, index) in item.tags" density='compact' class='ma-1'>
+                    <template v-for="tag in item.tags" density='compact' class='ma-1'>
                         <v-chip density='compact' class='mt-1'> {{ tag }} </v-chip> <br />
                     </template>
                 </template>
                 <template v-slot:item.actions="{ item }">
                     <v-btn color="info" size='small' variant='text' @click="() => { }">元数据</v-btn>
-                    <v-btn color="warning" size='small' variant='text' @click="() => { }">更新</v-btn>
                     <v-btn color="red" size='small' variant='text' @click="() => { }">删除</v-btn>
                 </template>
             </v-data-table>
         </v-tabs-window-item>
 
         <v-tabs-window-item value="volume">
-            Three
+           <!-- 卷 -->
+            <v-row class="mt-1">
+                <v-col cols="4">
+                    <v-text-field v-model="tableVolumes.search" placeholder="搜索" flat variant="outlined" class="mb-4"
+                        prepend-inner-icon="mdi-magnify" />
+                </v-col>
+                <v-col class='ma-0'>
+                    <v-toolbar density='compact'>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="refreshVolumes()">刷新</v-btn>
+                    </v-toolbar>
+                </v-col>
+            </v-row>
+            <v-data-table density="compact" :loading="tableVolumes.loading" :headers="tableVolumes.headers"
+                items-per-page="10" :items="tableVolumes.items" :search="tableVolumes.search">
+                <template v-slot:item.labels="{ item }">
+                    <template v-for="(value, key) in item.labels || []" density='compact' class='ma-1'>
+                        <v-chip density='compact' class='mt-1'> {{ key }}={{ value }} </v-chip> <br />
+                    </template>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                    <v-btn color="info" size='small' variant='text' @click="() => { }">元数据</v-btn>
+                    <v-btn color="red" size='small' variant='text' @click="removeVolume(item)">删除</v-btn>
+                </template>
+            </v-data-table>
         </v-tabs-window-item>
     </v-tabs-window>
 
@@ -60,21 +120,62 @@ var table = reactive({
     loading: false,
     search: '',
     headers: [
-        { title: 'ID', value: 'short_id' },
+        { title: 'ID', value: 'short_id', },
         { title: '标签', value: 'tags' },
         { title: '大小', value: 'size' },
         { title: '操作', value: 'actions' },
     ],
-    images: [],
+    items: [],
 });
+var tableContainers = reactive({
+    loading: false,
+    search: '',
+    headers: [
+        { title: 'ID', value: 'short_id' },
+        { title: '名称', value: 'name' },
+        { title: '状态', value: 'status' },
+        { title: '操作', value: 'actions' },
+    ],
+    items: [],
+});
+var tableVolumes = reactive({
+    loading: false,
+    search: '',
+    headers: [
+        { title: 'ID', value: 'short_id' },
+        { title: '驱动', value: 'driver' },
+        { title: '标签', value: 'labels' },
+        // { title: '挂载点', value: 'mountpoint', width: '20px'   },
+        { title: '创建时间', value: 'created_at' },
+        { title: '操作', value: 'actions' },
+    ],
+    items: [],
+});
+var system = reactive({
+    loading: false,
+    search: '',
+    info: {},
+});
+
 var tab = reactive({
     value: 'overview'
 })
 
+async function refreshSystem() {
+    system.loading = true
+    try {
+        system.info = await API.docker.system()
+    } catch (e) {
+        console.error(e)
+        notify.error("获取系统信息失败")
+    } finally {
+        system.loading = false
+    }
+}
 async function refresh(name) {
     table.loading = true
     try {
-        table.packages = await API.docker.images()
+        table.items = await API.docker.images()
     } catch (e) {
         console.error(e)
         notify.error("获取镜像失败")
@@ -82,8 +183,49 @@ async function refresh(name) {
         table.loading = false
     }
 }
+async function refreshContainers() {
+    tableContainers.loading = true
+    try {
+        tableContainers.items = await API.docker.containers({all_status: true})
+    } catch (e) {
+        console.error(e)
+        notify.error("获取容器失败")
+    } finally {
+        tableContainers.loading = false
+    }
+}
+async function refreshVolumes() {
+    tableVolumes.loading = true
+    try {
+        tableVolumes.items = await API.docker.volumes()
+    } catch (e) {
+        console.error(e)
+        notify.error("获取卷失败")
+    } finally {
+        tableVolumes.loading = false
+    }
+}
+async function removeVolume(item) {
+    notify.info(`删除卷 ${item.short_id}`)
+    try {
+        await API.docker.removeVolume(item.name)
+    } catch (e) {
+        console.error(e)
+        notify.error(`卷 ${item.short_id} 删除失败`)
+        return
+    }
+    for(let i in tableVolumes.items) {
+        if (tableVolumes.items[i].name != item.name) {
+            continue
+        }
+        tableVolumes.items.splice(i, 1);
+        break
+    }
+}
 
-
+refreshSystem()
 refresh()
+refreshContainers()
+refreshVolumes()
 
 </script>

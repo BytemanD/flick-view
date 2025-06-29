@@ -161,15 +161,27 @@ class Pip extends Restfulclient {
         return (await this.get('config')).config;
     }
     async set_config(key, value) {
-        return await this.put('config', {key: key, value: value});
+        return await this.put('config', { key: key, value: value });
     }
 }
 class Docker extends Restfulclient {
     constructor() {
         super('/docker');
     }
+    async system() {
+        return (await this.get('system')).system;
+    }
     async images() {
         return (await this.get('images')).images;
+    }
+    async containers(filters = {}) {
+        return (await this.get('containers', filters)).containers;
+    }
+    async volumes() {
+        return (await this.get('volumes')).volumes;
+    }
+    async removeVolume(name) {
+        await this.delete(`volumes/${name}`);
     }
 }
 
