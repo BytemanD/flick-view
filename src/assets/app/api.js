@@ -174,8 +174,26 @@ class Docker extends Restfulclient {
     async images() {
         return (await this.get('images')).images;
     }
+    async pruneImages() {
+        await this.delete('images');
+    }
     async containers(filters = {}) {
         return (await this.get('containers', filters)).containers;
+    }
+    async startContainer(idOrName) {
+        await this.put(`containers/${idOrName}`, { 'status': 'acitve' });
+    }
+    async stopContainer(idOrName) {
+        await this.put(`containers/${idOrName}`, { 'status': 'stop' });
+    }
+    async pauseContainer(idOrName) {
+        await this.put(`containers/${idOrName}`, { 'status': 'pause' });
+    }
+    async unpauseContainer(idOrName) {
+        await this.put(`containers/${idOrName}`, { 'status': 'unpause' });
+    }
+    async rmContainer(idOrName) {
+        await this.delete(`containers/${idOrName}`);
     }
     async volumes() {
         return (await this.get('volumes')).volumes;
