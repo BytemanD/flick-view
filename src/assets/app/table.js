@@ -8,7 +8,7 @@ class DataTable {
             this.headers = headers;
         this.loading = false;
         this.search = '';
-        this.items = {}
+        this.items = []
     }
 
     async refresh() {

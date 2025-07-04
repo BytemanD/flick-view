@@ -13,6 +13,7 @@ import '@fortawesome/fontawesome-free/css/all.css'
 import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import { fa } from 'vuetify/iconsets/fa'
+import { VTextField } from 'vuetify/components'
 
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
@@ -22,10 +23,17 @@ export default createVuetify({
       density: 'comfortable',
     },
     VDataTable: {
+      density: 'compact',
       headerProps: {
         // align: 'center'
+      },
+      VTextField: {
+        hideDetails: true
       }
-    }
+    },
+    VToolbar: {
+      density: 'compact',
+    },
   },
   theme: {
     defaultTheme: 'light',

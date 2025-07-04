@@ -82,11 +82,11 @@
             <h3>网卡设备</h3>
             <!-- <v-card title="网卡设备">
                 <v-card-text> -->
-            <v-data-table hide-default-footer density="compact" :headers="cardNetInterfaces.headers"
+            <v-data-table hide-default-footer :headers="cardNetInterfaces.headers"
                 :items="cardNetInterfaces.items" :loading="cardNetInterfaces.loading">
                 <template v-slot:item.addresses="{ item }">
                     <template v-for="addr in item.addresses">
-                        <v-chip size="small" density="compact">{{ addr }}</v-chip><br>
+                        <v-chip size="small">{{ addr }}</v-chip><br>
                     </template>
                 </template>
                 <template v-slot:item.bytes_sent="{ item }">
