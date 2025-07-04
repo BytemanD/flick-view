@@ -10,20 +10,20 @@ import { useToast } from 'vue-toastification'
         this.infoTimtout = 1000 * 3;
         this.successTimtout = 1000 * 3;
     }
-    success(msg, timeout=null){
-        this.driver.success(msg, {timeout: timeout || this.successTimtout})
+    success(msg, detail){
+        this.driver.success(msg + '\n' + (detail ? detail : ''))
     }
-    info(msg){
-        this.driver.info(msg, {timeout: this.infoTimtout})
+    info(msg, detail){
+        this.driver.info(msg + '\n' + (detail ? detail : ''))
     }
-    error(msg){
-        this.driver.error(msg, )
+    error(msg, detail){
+        this.driver.error(msg + '\n' + (detail ? detail : ''))
     }
-    warning(msg){
-        this.driver.warning(msg)
+    warning(msg, detail){
+        this.driver.warning(msg + '\n' + (detail ? detail : ''))
     }
-    warn(msg){
-        this.warning(msg)
+    warn(msg, detail){
+        this.warning(msg + '\n' + (detail ? detail : ''))
     }
 }
 

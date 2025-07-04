@@ -111,7 +111,7 @@
 <script setup>
 import { reactive } from 'vue';
 import API from '@/assets/app/api';
-import { humanSize } from '@/assets/app/urils';
+import { humanSize } from '@/assets/app/utils';
 
 var node = reactive({
     platform: {},
@@ -166,7 +166,6 @@ async function refresPartitions() {
         cardPartitions.items_view = []
         for(let index in cardPartitions.items) {
             let part = cardPartitions.items[index]
-            console.info(part)
             cardPartitions.items_view.push({
                 '_mountpoint': part.mountpoint,
                 '_fstype': part.fstype,

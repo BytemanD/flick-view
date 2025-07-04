@@ -69,7 +69,7 @@ class Restfulclient {
                 reqUrl, body, { headers: this.getHeaders() });
             return resp
         } catch (e) {
-            console.error(this._getErrorMsg(e.response));
+            console.error('post error', e);
             throw Error(this._getErrorMsg(e.response))
         }
     }
@@ -112,7 +112,14 @@ class Restfulclient {
         return (await this.list({ status: 'active' }))
     }
 }
-
+class Auth extends Restfulclient {
+    constructor() {
+        super('/auth');
+    }
+    async login() {
+        return await this.post('login', {});
+    }
+}
 class Node extends Restfulclient {
     constructor() {
         super('/node');
@@ -208,11 +215,13 @@ export class FlickAPI {
         this.node = new Node();
         this.pip = new Pip();
         this.docker = new Docker();
+        this.auth = new Auth()
     }
 }
 
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_BASE_URl || '';
+axios.defaults.withCredentials = true;
 console.log(`backend base url is: '${axios.defaults.baseURL}'`,)
 Restfulclient.prototype.getHeaders = function () {
     return {};

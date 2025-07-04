@@ -26,7 +26,7 @@
             </v-app-bar>
             <v-main>
                 <v-col>
-                    <component :is="components[navigation.selectedIndex].component" />
+                    <component v-if="navigation.loginSuccess" :is="components[navigation.selectedIndex].component" />
                 </v-col>
             </v-main>
         </v-app>
@@ -40,6 +40,10 @@ import PythonPackages from '@/components/containers/PythonPackages.vue'
 import DockerManager from '@/components/containers/container/DockerManager.vue'
 import SystemManager from '@/components/system/SystemManager.vue'
 
+import SES from '@/assets/app/sse'
+import API from '@/assets/app/api';
+import notify from '@/assets/app/notify';
+
 var components = [
     { title: '系统', icon: "$server", component: SystemManager },
     { title: 'Python', icon: "$python", component: PythonPackages },
@@ -49,6 +53,7 @@ var components = [
 var navigation = reactive({
     mini: false,
     selectedIndex: 0,
+    loginSuccess: false
 })
 
 function selectItem(index) {
@@ -65,6 +70,14 @@ function initNaigation() {
     }
 }
 
-initNaigation()
+
+API.auth.login().then((data) => {
+    SES.listen(data.session_id)
+    navigation.loginSuccess = true;
+    initNaigation()
+}).catch((e)=> {
+    console.error('login failed', e)
+    notify.error('login failed')
+})
 
 </script>
