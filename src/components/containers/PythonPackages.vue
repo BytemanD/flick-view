@@ -1,5 +1,5 @@
 <template>
-    <v-data-table :loading="table.loading" :headers="table.headers" items-per-page="15" :items="table.packages"
+    <v-data-table :loading="table.loading" :headers="table.headers" items-per-page="15" :items="table.items"
         :search="table.search">
         <template v-slot:top>
             <v-row>
@@ -9,7 +9,6 @@
                 </v-col>
                 <v-col>
                     <v-toolbar>
-                        <v-spacer></v-spacer>
                         <dialog-add-package :progress="addPackageDialog.progress" @click:confirm="addPackage" />
                         <dialog-pip-config></dialog-pip-config>
                         <v-spacer></v-spacer>
@@ -38,6 +37,7 @@
 import { reactive } from 'vue';
 import API from '@/assets/app/api';
 import notify from '@/assets/app/notify';
+import SES from '@/assets/app/sse';
 
 
 var table = reactive({
@@ -49,7 +49,7 @@ var table = reactive({
         { title: '描述', value: 'sumary' },
         { title: '操作', value: 'actions' },
     ],
-    packages: [],
+    items: [],
 });
 var detailDialog = reactive({
     display: false,
@@ -74,13 +74,13 @@ async function updatePackages(name) {
     if (packages.length == 0) {
         return;
     }
-    for (let i = 0; i < table.packages.length; i++) {
-        if (table.packages[i].name != name) {
+    for (let i = 0; i < table.items.length; i++) {
+        if (table.items[i].name != name) {
             continue
         }
-        table.packages[i].version = packages[0].version
-        table.packages[i].sumary = packages[0].sumary
-        table.packages[i].metadata = packages[0].metadata
+        table.items[i].version = packages[0].version
+        table.items[i].sumary = packages[0].sumary
+        table.items[i].metadata = packages[0].metadata
         break;
     }
 }
@@ -92,7 +92,7 @@ async function fetchPackages(name = null) {
     }
     table.loading = true
     try {
-        table.packages = await API.pip.packages(name)
+        table.items = await API.pip.packages(name)
     } catch (e) {
         console.error(e)
         notify.error("获取已安装的包失败")
@@ -111,9 +111,9 @@ async function uninstall() {
     try {
         await API.pip.uninstall(name)
         notify.success(`${name} 卸载完成...`)
-        for (let i = 0; i < table.packages.length; i++) {
-            if (table.packages[i].name === name) {
-                table.packages.splice(i, 1)
+        for (let i = 0; i < table.items.length; i++) {
+            if (table.items[i].name === name) {
+                table.items.splice(i, 1)
                 break
             }
         }
@@ -165,6 +165,19 @@ async function addPackage(packages, options = {}) {
         notify.error(`安装失败 ${failed.length} 个包`);
     }
 }
+
+
+SES.subscribe('installed package', (data) => {
+    notify.success(data.name, data.detail)
+    let updatedItem = data.item;
+    for (let i in table.items) {
+        let item = table.items[i];
+        if (item.name && item.name == updatedItem.name) {
+            Object.assign(table.items[i], updatedItem);
+            break
+        }
+    }
+})
 
 fetchPackages()
 

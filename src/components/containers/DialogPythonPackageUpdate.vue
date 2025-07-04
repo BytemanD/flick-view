@@ -64,8 +64,7 @@ async function update() {
         notify.error(`${name} 安装失败`)
         return
     }
-    notify.success(`${name} 安装成功`)
-    emits("updated", props.package.name)
+    // emits("updated", props.package.name)
 }
 
 watchEffect(
