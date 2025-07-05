@@ -18,7 +18,6 @@
 import { reactive, ref, watch, onUpdated, watchEffect, computed } from 'vue';
 import API from '@/assets/app/api';
 import notify from '@/assets/app/notify';
-// var display = ref(false)
 
 const props = defineProps({
     package: { type: Object, required: true, },
@@ -55,16 +54,14 @@ async function refreshVersions() {
 }
 
 async function update() {
-    console.log('update package', card.selected)
-    let name = `${props.package.name}==${card.selected}`
+    console.log('update package', props.package.name, card.selected)
     try {
-        notify.info(`开始安装 ${name}`)
-        await API.pip.install(`${name}`)
+        notify.info(`开始更新 ${props.package.name}: ${props.package.version} -> ${card.selected}`)
+        await API.pip.updatePackage(props.package.name, card.selected)
     } catch (e) {
-        notify.error(`${name} 安装失败`)
+        notify.error(`${props.package} 更新失败`)
         return
     }
-    // emits("updated", props.package.name)
 }
 
 watchEffect(

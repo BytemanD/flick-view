@@ -35,12 +35,47 @@ class DataTable {
             }
         }
     }
-
+    removeItem(item) {
+        for (let i in this.items) {
+            if (item.id && item.id == this.items[i].id) {
+                this.items.splice(i, 1)
+                break
+            }
+            if (item.name && item.name == this.items[i].name) {
+                this.items.splice(i, 1)
+                break
+            }
+        }
+    }
     async fetch() {
         throw Error('fetch is not implemented')
     }
 }
+export class PyPackageDataTable extends DataTable {
+    constructor() {
+        super(
+            '包',
+            [
+                { title: '名称', value: 'name' },
+                { title: '版本', value: 'version' },
+                { title: '描述', value: 'sumary' },
+                { title: '操作', value: 'actions' },
+            ])
+    }
+    async fetch() {
+        return await API.pip.packages()
+    }
+    async uninstallPackage(name) {
+        try {
+            notify.info(`开始卸载 ${name}...`)
+            await API.pip.uninstall(name)
+        } catch (e) {
+            console.error(e)
+            notify.error(`卸载 ${name} 失败: ${e.message}`)
+        }
+    }
 
+}
 export class ContainerDataTable extends DataTable {
     constructor() {
         super(

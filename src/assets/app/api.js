@@ -158,6 +158,10 @@ class Pip extends Restfulclient {
         let data = { name: name, noDeps: noDeps, force: force, upgrade: upgrade }
         return await this.post('packages', data);
     }
+    async updatePackage(name, version, { noDeps = false, force = false} = {}) {
+        let data = { version: version, noDeps: noDeps, force: force }
+        return await this.put(`packages/${name}`, data);
+    }
     async get_versions(name) {
         return await this.get(`packages/${name}/versions`);
     }

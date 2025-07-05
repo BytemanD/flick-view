@@ -12,7 +12,7 @@
                         <dialog-add-package :progress="addPackageDialog.progress" @click:confirm="addPackage" />
                         <dialog-pip-config></dialog-pip-config>
                         <v-spacer></v-spacer>
-                        <v-btn color="primary" @click="fetchPackages()">刷新</v-btn>
+                        <v-btn color="primary" @click="table.refresh()">刷新</v-btn>
                         <v-btn color="grey" @click="() => { }">检查更新...</v-btn>
                     </v-toolbar>
                 </v-col>
@@ -29,7 +29,7 @@
     <dialog-delete-comfirm hide-btn v-model="uninstallDialog.display" title="确定卸载包?" :text="uninstallDialog.text"
         @click:comfirm="() => uninstall()" />
     <dialog-python-package-update v-model="dialogUpdate.display" :package="dialogUpdate.package"
-        :versions="dialogUpdate.versions" @updated="fetchPackages">
+        :versions="dialogUpdate.versions">
     </dialog-python-package-update>
 </template>
 
@@ -38,19 +38,11 @@ import { reactive } from 'vue';
 import API from '@/assets/app/api';
 import notify from '@/assets/app/notify';
 import SES from '@/assets/app/sse';
+import { PyPackageDataTable } from '@/assets/app/table';
 
 
-var table = reactive({
-    loading: false,
-    search: '',
-    headers: [
-        { title: '名称', value: 'name' },
-        { title: '版本', value: 'version' },
-        { title: '描述', value: 'sumary' },
-        { title: '操作', value: 'actions' },
-    ],
-    items: [],
-});
+var table = reactive(new PyPackageDataTable());
+
 var detailDialog = reactive({
     display: false,
     package: {},
@@ -69,37 +61,6 @@ var addPackageDialog = reactive({
     progress: 0,
 })
 
-async function updatePackages(name) {
-    let packages = (await API.pip.packages({ name: name }))
-    if (packages.length == 0) {
-        return;
-    }
-    for (let i = 0; i < table.items.length; i++) {
-        if (table.items[i].name != name) {
-            continue
-        }
-        table.items[i].version = packages[0].version
-        table.items[i].sumary = packages[0].sumary
-        table.items[i].metadata = packages[0].metadata
-        break;
-    }
-}
-
-async function fetchPackages(name = null) {
-    if (name) {
-        updatePackages(name)
-        return;
-    }
-    table.loading = true
-    try {
-        table.items = await API.pip.packages(name)
-    } catch (e) {
-        console.error(e)
-        notify.error("获取已安装的包失败")
-    } finally {
-        table.loading = false
-    }
-}
 
 function uninstallConfirm(item) {
     uninstallDialog.text = item.name
@@ -107,20 +68,7 @@ function uninstallConfirm(item) {
 }
 async function uninstall() {
     let name = uninstallDialog.text;
-    notify.info(`开始卸载 ${name}...`)
-    try {
-        await API.pip.uninstall(name)
-        notify.success(`${name} 卸载完成...`)
-        for (let i = 0; i < table.items.length; i++) {
-            if (table.items[i].name === name) {
-                table.items.splice(i, 1)
-                break
-            }
-        }
-    } catch (e) {
-        console.error(e)
-        notify.error(`卸载 ${name} 失败: ${e.message}`)
-    }
+    table.uninstallPackage(name)
 }
 
 function showPackageDetail(item) {
@@ -139,7 +87,6 @@ async function updatePackage(item) {
 
 async function addPackage(packages, options = {}) {
     addPackageDialog.progress = 0;
-    notify.info(`开始安装 ${packages.length} 个包...`);
     let success = [];
     let failed = [];
     for (let i = 0; i < packages.length; i++) {
@@ -156,11 +103,9 @@ async function addPackage(packages, options = {}) {
         }
     }
     if (failed.length <= 0) {
-        notify.success(`安装成功 ${success.length} 个包`);
-        fetchPackages()
+        notify.success(`开始安装 ${success.length} 个包`);
     } else if (success.length > 0) {
-        notify.warning(`安装成功 ${success.length} 个包;\n安装失败 ${failed.length} 个包`);
-        fetchPackages()
+        notify.warning(`开始安装 ${success.length} 个包;\n失败 ${failed.length} 个包`);
     } else {
         notify.error(`安装失败 ${failed.length} 个包`);
     }
@@ -169,16 +114,24 @@ async function addPackage(packages, options = {}) {
 
 SES.subscribe('installed package', (data) => {
     notify.success(data.name, data.detail)
-    let updatedItem = data.item;
+    let newItem = data.item;
+    table.items.push(newItem)
+})
+SES.subscribe('updated package', (data) => {
+    notify.success(data.name, data.detail)
+    let newItem = data.item;
     for (let i in table.items) {
         let item = table.items[i];
-        if (item.name && item.name == updatedItem.name) {
-            Object.assign(table.items[i], updatedItem);
+        if (item.name && item.name == newItem.name) {
+            Object.assign(table.items[i], newItem);
             break
         }
     }
 })
-
-fetchPackages()
+SES.subscribe('uninstalled package', (data) => {
+    notify.success(data.name, data.detail)
+    table.removeItem({'name': data.detail})
+})
+table.refresh()
 
 </script>
