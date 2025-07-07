@@ -84,6 +84,7 @@ export class ContainerDataTable extends DataTable {
                 { title: 'ID', value: 'short_id' },
                 { title: '名称', value: 'name' },
                 { title: '镜像', value: 'image' },
+                { title: '命令', value: 'command' },
                 { title: '状态', value: 'status' },
                 { title: '操作', value: 'actions' },
             ])
@@ -126,7 +127,19 @@ export class ImageDataTable extends DataTable {
     async fetch() {
         return await API.docker.images({ all_status: true })
     }
-
+    async removeTag(tag){
+        await API.docker.removeTag(tag)
+        // TODO remove item tag
+        this.refresh()
+    }
+    async removeImage(id){
+        try {
+            await API.docker.removeImage(id)
+            this.removeItem({id: id})
+        } catch (e) {
+            notify.error('删除失败', '')
+        }
+    }
     async pruneImages() {
         notify.info("清理镜像 ...")
         await API.docker.pruneImages()

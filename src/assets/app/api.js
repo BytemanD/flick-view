@@ -185,6 +185,12 @@ class Docker extends Restfulclient {
     async images() {
         return (await this.get('images')).images;
     }
+    async removeTag(tag) {
+        await this.post(`images/actions`, {removeTag: {tag: tag}});
+    }
+    async removeImage(id) {
+        await this.delete(`images/${id}`);
+    }
     async pruneImages() {
         await this.delete('images');
     }

@@ -83,12 +83,13 @@
                 </template>
                 <template v-slot:item.tags="{ item }">
                     <template v-for="tag in item.tags" density='compact' class='ma-1'>
-                        <v-chip density='compact' class='mt-1'> {{ tag }} </v-chip> <br />
+                        <v-chip density='compact' class='mt-1' closable @click:close="tableImages.removeTag(tag)">
+                            {{ tag }} </v-chip> <br />
                     </template>
                 </template>
                 <template v-slot:item.actions="{ item }">
                     <v-btn color="info" size='small' variant='text' @click="() => { }">元数据</v-btn>
-                    <v-btn color="red" size='small' variant='text' @click="() => { }">删除</v-btn>
+                    <v-btn color="red" size='small' variant='text' @click="tableImages.removeImage(item.id)">删除</v-btn>
                 </template>
             </v-data-table>
         </v-tabs-window-item>
