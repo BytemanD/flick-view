@@ -70,14 +70,25 @@ function initNaigation() {
     }
 }
 
-
-API.auth.login().then((data) => {
-    SES.listen(data.session_id)
+async function login() {
+    let info = {}
+    try {
+        info = await API.auth.loginInfo();
+    } catch(e) {
+        console.error('get login info falied', e)
+        try {
+            info = await API.auth.login()
+        } catch(e2) {
+            console.error('login failed', e2)
+            notify.error('login failed')
+            return
+        }
+    }
+    SES.listen(info.session_id)
     navigation.loginSuccess = true;
     initNaigation()
-}).catch((e)=> {
-    console.error('login failed', e)
-    notify.error('login failed')
-})
+}
+
+login()
 
 </script>

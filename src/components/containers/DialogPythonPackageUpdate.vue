@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, onUpdated, watchEffect, computed } from 'vue';
+import { reactive, watchEffect } from 'vue';
 import API from '@/assets/app/api';
 import notify from '@/assets/app/notify';
 
@@ -29,7 +29,6 @@ var card = reactive({
     loading: false,
     selected: null,
 })
-const emits = defineEmits(['updated'])
 
 async function refreshVersions() {
     card.versions = [];

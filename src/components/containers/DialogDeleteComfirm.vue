@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="modelValue" width="600" scrollable persistent>
+  <v-dialog width="600" scrollable persistent>
     <template v-slot:activator="{ props }">
       <v-btn v-if="!hideBtn" v-bind="props" :variant="variant" :density="density" icon="mdi-trash-can" color="red"
         :disabled="disabledBtn"></v-btn>
@@ -11,16 +11,19 @@
         <ol v-if="items.length > 0" class="ml-6">
           <li v-for="(item, index) in items" :key="index">{{ item }}</li>
         </ol>
+        <v-switch v-if="showForceDelete" v-model="options.force" label="强制删除" color="warning"></v-switch>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
         <v-row>
-          <v-col class="pa-2" >
-            <v-btn block color='info' @click="() => {emits('update:modelValue', false); emits('click:cancel')}">取消</v-btn>
+          <v-col class="pa-2">
+            <v-btn block color='info'
+              @click="() => { emits('update:modelValue', false); emits('click:cancel') }">取消</v-btn>
           </v-col>
           <v-divider vertical></v-divider>
           <v-col class="pa-2">
-            <v-btn block color="red" @click="() => {emits('update:modelValue', false); emits('click:comfirm')}">确定</v-btn>
+            <v-btn block color="red"
+              @click="() => { emits('update:modelValue', false); emits('click:comfirm', options) }">确定</v-btn>
           </v-col>
         </v-row>
       </v-card-actions>
@@ -29,10 +32,7 @@
 </template>
 
 <script setup>
-
-import { ref } from 'vue'
-
-const modelValue = ref(false);
+import { reactive } from 'vue'
 
 const emits = defineEmits(['update:modelValue', 'click:comfirm', 'click:cancel'])
 const props = defineProps({
@@ -43,16 +43,12 @@ const props = defineProps({
   items: { type: Array, default: () => [] },
   disabledBtn: { type: Boolean, default: false },
   hideBtn: { type: Boolean, default: false },
+  showForceDelete: { type: Boolean, default: false, required: false },
 })
 
-function getItemValue(item) {
-  if (props.itemValueFunc) {
-    return props.itemValueFunc(item)
-  }
-  if (typeof item == 'object') {
-    return item.name || item.id
-  }
-  return item
-}
+var options = reactive({
+  force: false,
+})
+
 
 </script>

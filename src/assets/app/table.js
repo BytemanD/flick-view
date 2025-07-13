@@ -85,6 +85,7 @@ export class ContainerDataTable extends DataTable {
                 { title: '名称', value: 'name' },
                 { title: '镜像', value: 'image' },
                 { title: '命令', value: 'command' },
+                { title: '自动删除', value: 'autoRemove' },
                 { title: '状态', value: 'status' },
                 { title: '操作', value: 'actions' },
             ])
@@ -112,6 +113,31 @@ export class ContainerDataTable extends DataTable {
             return
         }
     }
+    async rmContainer(item, force = false) {
+        notify.info(`删除容器 ${item.name}`)
+        try {
+            await API.docker.rmContainer(item.id || item.name, force)
+            notify.success("删除成功")
+            this.removeItem(item)
+        } catch (e) {
+            console.error(e)
+            notify.error("删除失败")
+            return
+        }
+    }
+    async createContainer(image, { name = null, command = null, authRemove = false } = {}) {
+        notify.info(`创建容器`)
+        try {
+            await API.docker.createContainer(image,
+                { name: name, command: command, authRemove: authRemove }
+            )
+        } catch (e) {
+            console.error(e)
+            notify.error("创建失败")
+            throw e
+        }
+        this.refresh()
+    }
 }
 export class ImageDataTable extends DataTable {
     constructor() {
@@ -127,15 +153,32 @@ export class ImageDataTable extends DataTable {
     async fetch() {
         return await API.docker.images({ all_status: true })
     }
-    async removeTag(tag){
-        await API.docker.removeTag(tag)
-        // TODO remove item tag
-        this.refresh()
+    async removeTag(id, tag) {
+        try {
+            let image = await API.docker.removeImageTag(id, tag)
+            if (!image) {
+                this.removeItem({ id: id })
+            } else {
+                this.updateItem(image)
+            }
+        } catch (e) {
+            notify.error(`标签 ${tag} 删除失败`)
+            return
+        }
     }
-    async removeImage(id){
+    async addTag(id, tag) {
+        try {
+            let image = await API.docker.addImageTag(id, tag)
+            this.updateItem(image)
+        } catch (e) {
+            notify.error(`标签 ${tag} 添加失败`)
+            return
+        }
+    }
+    async removeImage(id) {
         try {
             await API.docker.removeImage(id)
-            this.removeItem({id: id})
+            this.removeItem({ id: id })
         } catch (e) {
             notify.error('删除失败', '')
         }

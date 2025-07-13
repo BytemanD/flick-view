@@ -19,24 +19,23 @@
         </v-tabs-window-item>
         <v-tabs-window-item value="container">
             <!-- 容器 -->
+            <v-row class="mt-1">
+                <v-col cols="4">
+                    <v-text-field v-model="tableContainers.search" placeholder="搜索" flat variant="outlined" class="mb-4"
+                        prepend-inner-icon="mdi-magnify" />
+                </v-col>
+                <v-col class='ma-0'>
+                    <v-toolbar>
+                        <dialog-add-container @click:confirm="runContainer"></dialog-add-container>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="tableContainers.refresh()">刷新</v-btn>
+                    </v-toolbar>
+                </v-col>
+            </v-row>
             <v-data-table :loading="tableContainers.loading" :headers="tableContainers.headers" items-per-page="10"
                 :items="tableContainers.items" :search="tableContainers.search">
                 <template v-slot:item.size="{ item }">
                     {{ humanSize(item.size) }}
-                </template>
-                <template v-slot:top>
-                    <v-row class="mt-1">
-                        <v-col cols="4">
-                            <v-text-field v-model="tableContainers.search" placeholder="搜索" flat variant="outlined"
-                                class="mb-4" prepend-inner-icon="mdi-magnify" />
-                        </v-col>
-                        <v-col class='ma-0'>
-                            <v-toolbar>
-                                <v-spacer></v-spacer>
-                                <v-btn color="primary" @click="tableContainers.refresh()">刷新</v-btn>
-                            </v-toolbar>
-                        </v-col>
-                    </v-row>
                 </template>
                 <template v-slot:item.tags="{ item }">
                     <template v-for="(tag, index) in item.tags" density='compact' class='ma-1'>
@@ -54,7 +53,8 @@
                         variant='text' @click="tableContainers.startContainer(item)">启动</v-btn>
                     <v-btn v-else-if="['running', 'active'].indexOf(item.status) >= 0" color="warning" size='small'
                         variant='text' @click="tableContainers.stopContainer(item)">停止</v-btn>
-                    <v-btn color="red" size='small' variant='text' @click="() => { }">删除</v-btn>
+                    <v-btn color="red" size='small' variant='text'
+                        @click="() => { showDialogRmContainer(item) }">删除</v-btn>
                 </template>
             </v-data-table>
         </v-tabs-window-item>
@@ -82,12 +82,20 @@
                     {{ humanSize(item.size) }}
                 </template>
                 <template v-slot:item.tags="{ item }">
-                    <template v-for="tag in item.tags" density='compact' class='ma-1'>
-                        <v-chip density='compact' class='mt-1' closable @click:close="tableImages.removeTag(tag)">
-                            {{ tag }} </v-chip> <br />
-                    </template>
+                    <div v-for="(tag, index) in item.tags" :key="tag" class="my-1">
+                        <chip-k-v :values="tag.split(':')" closable
+                            @click="(e) => { e.stopPropagation(); tableImages.removeTag(item.id, tag) }"></chip-k-v>
+                        <!-- <v-chip>
+                            {{ tag }}
+                            <template #close>
+                                <v-btn class="ml-1" icon="mdi-close-circle" size="default" variant="plain" color="red"
+                                    @click="(e) => { e.stopPropagation(); tableImages.removeTag(item.id, tag) }"></v-btn>
+                            </template>
+        </v-chip> -->
+                    </div>
                 </template>
                 <template v-slot:item.actions="{ item }">
+                    <v-btn prepend-icon="mdi-plus" color="info" @click="showDialogAddTagDialog(item)">标签</v-btn>
                     <v-btn color="info" size='small' variant='text' @click="() => { }">元数据</v-btn>
                     <v-btn color="red" size='small' variant='text' @click="tableImages.removeImage(item.id)">删除</v-btn>
                 </template>
@@ -124,7 +132,10 @@
             </v-data-table>
         </v-tabs-window-item>
     </v-tabs-window>
-
+    <dialog-add-tag v-model="addTagDialog.display" :image="addTagDialog.image"
+        @click:confirm="(item) => (tableImages.addTag(item.id, item.tag))" />
+    <dialog-delete-comfirm hide-btn show-force-delete v-model="rmContainerDialog.display" title="确定删除容器?"
+        :text="rmContainerDialog.container.name || rmContainerDialog.container.id" @click:comfirm="removeContainer" />
 </template>
 
 <script setup>
@@ -147,6 +158,15 @@ var system = reactive({
     info: {},
 });
 
+var addTagDialog = reactive({
+    display: false,
+    image: {},
+})
+var rmContainerDialog = reactive({
+    display: false,
+    container: {}
+})
+
 function saveTab() {
     localStorage.setItem('dockerTabValue', tab.value)
 }
@@ -163,16 +183,36 @@ async function refreshSystem() {
     }
 }
 
+function showDialogAddTagDialog(item) {
+    addTagDialog.display = true;
+    addTagDialog.image = item
+}
+function showDialogRmContainer(item) {
+    rmContainerDialog.display = true;
+    rmContainerDialog.container = item
+}
 
+async function removeContainer(options) {
+    await tableContainers.rmContainer(rmContainerDialog.container, options.force)
+}
+
+async function runContainer(options) {
+    await tableContainers.createContainer({
+        image: options.image,
+        name: options.name,
+        command: options.command,
+        autoRemove: options.autoRemove,
+    })
+}
 SES.subscribe('started container', (data) => {
-    // notify.success(data.name, data.detail)
     tableContainers.updateItem(data.item);
 })
 SES.subscribe('stopped container', (data) => {
-    // notify.success(data.name, data.detail)
     tableContainers.updateItem(data.item);
 })
-
+SES.subscribe('deleted container', (data) => {
+    tableContainers.removeItem(data.item);
+})
 // 初始化tab
 let dockerTabValue = localStorage.getItem('dockerTabValue')
 if (dockerTabValue) {

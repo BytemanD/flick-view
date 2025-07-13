@@ -28,6 +28,7 @@ class ServerEvents {
         let self = this;
         this.connection.onmessage = function (event) {
             let data = JSON.parse(event.data);
+            console.debug('receive message event, data:', data)
             let eventName = data.name;
 
             let handler = self.subscription[eventName];
@@ -40,7 +41,6 @@ class ServerEvents {
         }
     }
     defaultMessageHandler(data) {
-        console.info('receive message event, data:', data)
         if (!data) {
             console.warn('message data is empty: event:', event)
             return

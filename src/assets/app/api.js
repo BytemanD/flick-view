@@ -36,7 +36,7 @@ class Restfulclient {
             return JSON.stringify(errorData)
         }
     }
-    async get(url = null, filters = {}) {
+    async get(url = null, filters) {
         let reqUrl = this.baseUrl;
         if (url) {
             if (url.startsWith('/')) {
@@ -116,9 +116,14 @@ class Auth extends Restfulclient {
     constructor() {
         super('/auth');
     }
+    async loginInfo() {
+        return await this.get('login');
+    }
+
     async login() {
         return await this.post('login', {});
     }
+
 }
 class Node extends Restfulclient {
     constructor() {
@@ -158,7 +163,7 @@ class Pip extends Restfulclient {
         let data = { name: name, noDeps: noDeps, force: force, upgrade: upgrade }
         return await this.post('packages', data);
     }
-    async updatePackage(name, version, { noDeps = false, force = false} = {}) {
+    async updatePackage(name, version, { noDeps = false, force = false } = {}) {
         let data = { version: version, noDeps: noDeps, force: force }
         return await this.put(`packages/${name}`, data);
     }
@@ -185,8 +190,14 @@ class Docker extends Restfulclient {
     async images() {
         return (await this.get('images')).images;
     }
-    async removeTag(tag) {
-        await this.post(`images/actions`, {removeTag: {tag: tag}});
+    async removeImageTag(id, tag) {
+        let encodeId = encodeURIComponent(id)
+        let encodeTag = encodeURIComponent(tag)
+        return (await this.delete(`images/${encodeId}/tags/${encodeTag}`)).image;
+    }
+    async addImageTag(id, tag) {
+        let encodeId = encodeURIComponent(id)
+        return (await this.post(`images/${encodeId}/tags`, { tag: tag })).image;
     }
     async removeImage(id) {
         await this.delete(`images/${id}`);
@@ -196,6 +207,22 @@ class Docker extends Restfulclient {
     }
     async containers(filters = {}) {
         return (await this.get('containers', filters)).containers;
+    }
+    async createContainer({ image, name = null, command = null, autoRemove = null } = {}) {
+        let data = { image: image }
+        if (name) {
+            data.name = name
+        }
+        if (command) {
+            data.command = command
+        }
+        if (autoRemove) {
+            data.autoRemove = true
+        } else if (autoRemove === false) {
+            data.autoRemove = false
+        }
+        console.log('create container with data', data)
+        await this.post('containers', data);
     }
     async startContainer(idOrName) {
         await this.put(`containers/${idOrName}`, { 'status': 'acitve' });
@@ -209,8 +236,8 @@ class Docker extends Restfulclient {
     async unpauseContainer(idOrName) {
         await this.put(`containers/${idOrName}`, { 'status': 'unpause' });
     }
-    async rmContainer(idOrName) {
-        await this.delete(`containers/${idOrName}`);
+    async rmContainer(idOrName, force = false) {
+        await this.delete(`containers/${idOrName}?force=${force}`);
     }
     async volumes() {
         return (await this.get('volumes')).volumes;
