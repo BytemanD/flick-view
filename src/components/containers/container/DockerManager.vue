@@ -85,13 +85,6 @@
                     <div v-for="(tag, index) in item.tags" :key="tag" class="my-1">
                         <chip-k-v :values="tag.split(':')" closable
                             @click="(e) => { e.stopPropagation(); tableImages.removeTag(item.id, tag) }"></chip-k-v>
-                        <!-- <v-chip>
-                            {{ tag }}
-                            <template #close>
-                                <v-btn class="ml-1" icon="mdi-close-circle" size="default" variant="plain" color="red"
-                                    @click="(e) => { e.stopPropagation(); tableImages.removeTag(item.id, tag) }"></v-btn>
-                            </template>
-        </v-chip> -->
                     </div>
                 </template>
                 <template v-slot:item.actions="{ item }">

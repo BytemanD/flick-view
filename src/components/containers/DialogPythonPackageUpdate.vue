@@ -2,8 +2,8 @@
     <v-dialog max-width="500" scrollable>
         <v-card :title="props.package.name" :subtitle="`当前版本: ${package.version}`">
             <v-card-text>
-                <v-select density="comfortable" hide-details v-model="card.selected" :items="card.versions"
-                    :loading="card.loading">
+                <v-select density="comfortable" v-model="card.selected" :items="card.versions"
+                    :loading="card.loading" :error="card.error != ''" :messages="card.error">
                     <template v-slot:prepend>选择版本</template>
                 </v-select>
             </v-card-text>
@@ -28,9 +28,11 @@ var card = reactive({
     versions: [],
     loading: false,
     selected: null,
+    error: '',
 })
 
 async function refreshVersions() {
+    card.error = ''
     card.versions = [];
     console.debug('refresh versions')
     card.loading = true;
@@ -38,10 +40,13 @@ async function refreshVersions() {
         card.versions = (await API.pip.get_versions(props.package.name)).versions
     } catch (e) {
         console.error(e);
-        notify.error("获取版本失败")
+        card.error = "获取版本失败"
         return;
     } finally {
         card.loading = false;
+    }
+    if (card.error != '') {
+        return
     }
     for (let i = 0; i < card.versions.length; i++) {
         if (card.selected == card.versions[i]) {
@@ -67,6 +72,7 @@ watchEffect(
     () => {
         card.selected = null;
         card.versions = [];
+        card.error = '';
         if (!props.package || !props.package.name) {
             return
         }

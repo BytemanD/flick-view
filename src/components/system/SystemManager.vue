@@ -42,14 +42,25 @@
             <v-switch density="compact" v-model="cardPartitions.allDevice" hide-details color="info"
                 @change="refresPartitions()" label="全部设备"></v-switch>
         </v-col>
-        <v-col lg="3" md="4" sm="6" v-for="(part, i) in cardPartitions.items_view">
-            <v-card :title="part._mountpoint" variant="outlined" color="info">
-                <template v-slot:append>
-                    <v-chip label color="info">{{ part._fstype }}</v-chip>
-                </template>
-                <v-divider></v-divider>
-                <v-card-text>
-                    <list-key-value :object="part"></list-key-value>
+        <v-col lg="4" md="6" sm="12" v-for="(part, i) in cardPartitions.items">
+            <v-card>
+                <v-card-text class="pa-1">
+
+                    <v-list-item>
+                        <template v-slot:prepend>
+                            <v-badge location="top end" color="info" :content="part.fstype">
+                                <v-icon size="x-large">mdi-harddisk</v-icon>
+                            </v-badge>
+                        </template>
+                        <strong>{{ part.device }}</strong>
+                        <v-chip class="ml-4" density="compact" color="grey">挂载点: {{ part.mountpoint }}</v-chip>
+                        <!-- <v-chip class="ml-4" density="compact" color="info">{{ part.fstype }}</v-chip> -->
+                        <v-progress-linear class="my-1" :model-value="part.usage.percent" color="info"
+                            height="18"></v-progress-linear>
+                        可用: {{ humanSize(part.usage.free) }} , 总量: {{ humanSize(part.usage.total) }}
+                        <template v-slot:append>
+                        </template>
+                    </v-list-item>
                 </v-card-text>
             </v-card>
         </v-col>
@@ -70,7 +81,7 @@
                                 </template>
                                 总数: {{ humanSize(item.usage.total) }}<br />
                                 已用: {{ humanSize(item.usage.used) }}<br />
-                                可用: {{ humanSize(item.usage.free) }}<br />
+                                可用: {{ humanSize(item.usage.total) }}<br />
                             </v-tooltip>
                         </template>
                     </v-data-table>
@@ -82,8 +93,8 @@
             <h3>网卡设备</h3>
             <!-- <v-card title="网卡设备">
                 <v-card-text> -->
-            <v-data-table hide-default-footer :headers="cardNetInterfaces.headers"
-                :items="cardNetInterfaces.items" :loading="cardNetInterfaces.loading">
+            <v-data-table hide-default-footer :headers="cardNetInterfaces.headers" :items="cardNetInterfaces.items"
+                :loading="cardNetInterfaces.loading">
                 <template v-slot:item.addresses="{ item }">
                     <template v-for="addr in item.addresses">
                         <v-chip size="small">{{ addr }}</v-chip><br>
@@ -164,7 +175,7 @@ async function refresPartitions() {
     try {
         cardPartitions.items = await API.node.partitions({ all_device: cardPartitions.allDevice })
         cardPartitions.items_view = []
-        for(let index in cardPartitions.items) {
+        for (let index in cardPartitions.items) {
             let part = cardPartitions.items[index]
             cardPartitions.items_view.push({
                 '_mountpoint': part.mountpoint,

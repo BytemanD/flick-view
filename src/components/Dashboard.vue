@@ -35,6 +35,7 @@
 
 <script setup>
 import { reactive } from 'vue';
+import VueCookies from 'vue-cookies'
 
 import PythonPackages from '@/components/containers/PythonPackages.vue'
 import DockerManager from '@/components/containers/container/DockerManager.vue'
@@ -74,17 +75,19 @@ async function login() {
     let info = {}
     try {
         info = await API.auth.loginInfo();
-    } catch(e) {
+    } catch (e) {
         console.error('get login info falied', e)
         try {
-            info = await API.auth.login()
-        } catch(e2) {
+            window.
+                info = await API.auth.login()
+        } catch (e2) {
             console.error('login failed', e2)
             notify.error('login failed')
             return
         }
     }
-    SES.listen(info.session_id)
+    let sid = VueCookies.get('sid')
+    SES.listen(sid)
     navigation.loginSuccess = true;
     initNaigation()
 }
