@@ -37,9 +37,10 @@
 import { reactive } from 'vue';
 import VueCookies from 'vue-cookies'
 
+import SystemManager from '@/components/system/SystemManager.vue'
 import PythonPackages from '@/components/containers/PythonPackages.vue'
 import DockerManager from '@/components/containers/container/DockerManager.vue'
-import SystemManager from '@/components/system/SystemManager.vue'
+import RequestManager from '@/components/containers/webrequest/RequestManager.vue'
 
 import SES from '@/assets/app/sse'
 import API from '@/assets/app/api';
@@ -49,6 +50,7 @@ var components = [
     { title: '系统', icon: "$server", component: SystemManager },
     { title: 'Python', icon: "$python", component: PythonPackages },
     { title: 'Docker', icon: "$docker", component: DockerManager },
+    { title: 'webrequest', icon: "$spiderWeb", component: RequestManager },
 ]
 
 var navigation = reactive({

@@ -246,13 +246,33 @@ class Docker extends Restfulclient {
         await this.delete(`volumes/${name}`);
     }
 }
+class WebRequest extends Restfulclient {
+    constructor() {
+        super('/webrequest');
+    }
+    async list() {
+        return (await this.get('requests')).requests;
+    }
+    async delete(id) {
+        await super.delete(`requests/${id}`);
+    }
+    async send(method, url, body, filters = {}) {
+        let data = {
+            method: method,
+            url: url,
+            body: body,
+        }
+        return (await this.post('requests', data)).request;
+    }
 
+}
 export class FlickAPI {
     constructor() {
+        this.auth = new Auth()
         this.node = new Node();
         this.pip = new Pip();
         this.docker = new Docker();
-        this.auth = new Auth()
+        this.webrequest = new WebRequest();
     }
 }
 

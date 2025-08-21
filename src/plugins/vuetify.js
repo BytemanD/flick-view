@@ -55,6 +55,7 @@ export default createVuetify({
       python: 'fa:fab fa-python',
       docker: 'fa:fab fa-docker',
       server: 'fa:fas fa-server',
+      spiderWeb: 'fa:fas fa-globe',
     },
     sets: {
       // :header-props="{ align: 'center' }"

@@ -22,6 +22,7 @@ declare module 'vue' {
     DockerManager: typeof import('./src/components/containers/container/DockerManager.vue')['default']
     ListKeyValue: typeof import('./src/components/plugins/ListKeyValue.vue')['default']
     PythonPackages: typeof import('./src/components/containers/PythonPackages.vue')['default']
+    RequestManager: typeof import('./src/components/containers/webrequest/RequestManager.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SystemManager: typeof import('./src/components/system/SystemManager.vue')['default']
